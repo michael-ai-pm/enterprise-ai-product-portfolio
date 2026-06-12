@@ -3,7 +3,7 @@
 
 **Document type:** AI Strategy and Operating Model (worked example)
 **Audience:** Anyone evaluating how a senior AI Product Manager thinks about portfolio strategy, operating model design, governance, and unit economics for production AI
-**Author:** Michael, Product Manager (Data and AI Platform)
+**Author:** Michael, Ai Senior Product Manager (Data and AI Platform)
 **Status:** Public v1.0
 
 ---
@@ -14,32 +14,32 @@ Most AI product portfolios don't fail because the models are weak. They fail bec
 
 The fix isn't more pilots. It's one platform, one lifecycle from intake to retirement, one governance framework, and one FinOps model, applied consistently across every product in the portfolio. That is the argument this document makes.
 
-The worked example uses a fictional studios business called MetroStudios. The choice of domain is deliberate. The content production lifecycle is end-to-end and visible, which makes the portfolio decisions feel concrete rather than abstract. But the patterns themselves are domain-agnostic. The "intake to retirement" lifecycle, the 6-gate operating model, the "multi team" RACI, the EU AI Act classification approach, and the "cost floor" FinOps model all transfer without modification to a bank, a healthcare insurer, a consultancy, or a frontier lab's enterprise deployment programme.
+The worked example uses a fictional studios business called MetroStudios. The choice of domain is deliberate. The content production lifecycle is end-to-end and visible, which makes the portfolio decisions feel concrete rather than abstract. But the patterns themselves are domain-agnostic. The intake-to-retirement lifecycle, the six-gate operating model, the multi-team RACI, the EU AI Act classification approach, and the cost-floor FinOps model all transfer without modification to a bank, a healthcare insurer, a consultancy, or a frontier lab's enterprise deployment programme.
 
 The worked example illustrates how a fictional studios business operationalises AI across its full content production lifecycle by building a single Data and AI Platform that supports a portfolio of 12 products at varying maturity levels. The platform converts AI capability into measurable business outcomes. It is governed by a single operating model that spans Product, Data, Engineering, Legal, Cyber, and Vendor Management.
 
 Success is measured on 3 outcomes regardless of industry.
 
-The 1st is operational efficiency: time and cost reduction across the workflows the portfolio targets. 
-The 2nd is commercial value: demonstrable revenue uplift or margin gain in the business lines the portfolio supports. 
-The 3rd is responsible adoption: zero "high severity" incidents under the EU AI Act framework, with 100% of "in production" use cases covered by approved governance artefacts.
+The first is operational efficiency: time and cost reduction across the workflows the portfolio targets. 
+The second is commercial value: demonstrable revenue uplift or margin gain in the business lines the portfolio supports. 
+The third is responsible adoption: zero high-severity incidents under the EU AI Act framework, with 100% of in-production use cases covered by approved governance artefacts.
 
-This document sets out the strategy, the 12-product portfolio, the operating model from intake to retirement, the governance framework, the value framework, and the 3-year roadmap.
+This document sets out the strategy, the 12-product portfolio, the operating model from intake to retirement, the governance framework, the value framework, and the three-year roadmap.
 
 ---
 ## 2. Strategic Context
 
 ### 2.1 Why now
 
-3 forces converge in 2026 that make this the right moment to operationalise AI at portfolio level, rather than continuing to run isolated experiments. I would make the same argument regardless of the industry.
+Three forces converge in 2026 that make this the right moment to operationalise AI at portfolio level, rather than continuing to run isolated experiments. I would make the same argument regardless of the industry.
 
-The 1st force is production readiness. Generative and agentic AI have crossed the threshold for the workflows that dominate enterprise operations: research, summarisation, structured generation, classification and tagging, triage, and decision support. A year ago it was reasonable to treat these capabilities as experimental. It is no longer reasonable.
+The first force is production readiness. Generative and agentic AI have crossed the threshold for the workflows that dominate enterprise operations: research, summarisation, structured generation, classification and tagging, triage, and decision support. A year ago it was reasonable to treat these capabilities as experimental. It is no longer reasonable.
 
-The 2nd force is the visible cost of fragmentation. Across industries, organisations are running 20 or more shadow AI tools per business unit, with no governance, no eval baseline, and no FinOps oversight. The cost isn't the tools themselves. It's the duplicated effort, the legal exposure, the audit findings, and the loss of cross-product learning that accumulates when every team runs its own stack.
+The second force is the visible cost of fragmentation. Across industries, organisations are running 20 or more shadow AI tools per business unit, with no governance, no eval baseline, and no FinOps oversight. The cost isn't the tools themselves. It's the duplicated effort, the legal exposure, the audit findings, and the loss of cross-product learning that accumulates when every team runs its own stack.
 
-The 3rd force is regulation. The EU AI Act is live and applies to a wider range of enterprise use cases than most organisations have acknowledged: any decision support touching employment, credit, healthcare, content moderation, or biometrics, as well as "vendor provided" general purpose models. Operating without a governance framework is a commercial risk, not just a legal one.
+The third force is regulation. The EU AI Act is live and applies to a wider range of enterprise use cases than most organisations have acknowledged: any decision support touching employment, credit, healthcare, content moderation, or biometrics, as well as vendor-provided general-purpose models. Operating without a governance framework is a commercial risk, not just a legal one.
 
-In the worked example, these 3 forces show up concretely. "Production ready" capability exists for research and tagging across the content lifecycle. Adoption of casting and post-production tools is already fragmented across business units. And EU AI Act exposure on casting triage and AVOD personalisation is real and unmanaged.
+In the worked example, these 3 forces show up concretely. Production-ready capability exists for research and tagging across the content lifecycle. Adoption of casting and post-production tools is already fragmented across business units. And EU AI Act exposure on casting triage and AVOD personalisation is real and unmanaged.
 
 ### 2.2 What we are not doing
 
@@ -51,11 +51,11 @@ It doesn't mandate a single vendor or model. Vendor diversity is part of the res
 
 ### 2.3 Target outcomes
 
-The 3 horizons below set the direction. The measures are deliberately concrete, because vague outcomes are the 1st sign that an organisation isn't serious about tracking value.
+The 3 horizons below set the direction. The measures are deliberately concrete, because vague outcomes are the first sign that an organisation isn't serious about tracking value.
 
 By the end of Year 1, 4 products should be in production and 8 in discovery or pilot. The measures are the number of active products and the eval pass rates at each gate.
 
-By the end of Year 2, a "portfolio wide" eval framework should be in place and a FinOps baseline established. The measures are cost per use case and value tracked per product.
+By the end of Year 2, a portfolio-wide eval framework should be in place and a FinOps baseline established. The measures are cost per use case and value tracked per product.
 
 By the end of Year 3, the AI Platform should be the default rail for any new enterprise initiative. The measure is the percentage of new initiatives launched on the platform rather than outside it.
 
@@ -85,11 +85,11 @@ The portfolio I'm describing here has 12 products. They map to the stages of an 
 
 Every product in the portfolio is scored on 4 criteria, reviewed quarterly: business value, technical feasibility, regulatory risk, and team readiness. Nothing enters the build phase without scores against all 4. That isn't a bureaucratic gate for its own sake. It's the thing that stops a team spending 6 weeks building a product that legal could never approve, or that the business unit won't adopt because the underlying data isn't ready.
 
-Products are also explicitly retired. This is the part most portfolio documents leave out, because retirement feels like failure. I don't think it is. A product should leave the portfolio when its value falls below the "unit cost" floor, when vendor risk crosses a threshold that cannot be remediated, or when a successor product reaches parity. Keeping a product alive past that point does not protect the business. It just makes the portfolio harder to manage and harder to fund.
+Products are also explicitly retired. This is the part most portfolio documents leave out, because retirement feels like failure. I don't think it is. A product should leave the portfolio when its value falls below the unit-cost floor, when vendor risk crosses a threshold that cannot be remediated, or when a successor product reaches parity. Keeping a product alive past that point does not protect the business. It just makes the portfolio harder to manage and harder to fund.
 
-### 3.3 "Year 1" priority products
+### 3.3 Year 1 priority products
 
-Not everything moves at once. The year 1 split is:
+Not everything moves at once. The Year 1 split is:
 
 **Tier 1 (build to production):** Sales Market Intelligence Agent, AI Object and Face Tagging, Subtitle and Translation Automation, Casting Submission Triage Agent.
 
@@ -104,29 +104,29 @@ The Tier 1 selection isn't arbitrary. These 4 products have the clearest value b
 
 A single end-to-end process governs every AI product in the portfolio, regardless of which business unit sponsors it or which vendor stack it runs on. The process has 6 gates. Nothing moves between them without explicit approval and documented evidence.
 
-I want to be direct about why a 6-gate process is necessary. The organisations I have seen struggle with AI at scale aren't struggling because they lack ideas or talent. They are struggling because individual teams make good local decisions that create bad "portfolio level" outcomes. One team buys a vector database that another team has already evaluated and rejected. A "high risk" use case gets treated as minimal risk at Gate 2 because no one checked. A product slips into production without a service owner. The gates below are designed specifically to prevent those failure modes, not to slow things down.
+I want to be direct about why a six-gate process is necessary. The organisations I have seen struggle with AI at scale aren't struggling because they lack ideas or talent. They are struggling because individual teams make good local decisions that create bad portfolio-level outcomes. One team buys a vector database that another team has already evaluated and rejected. A high-risk use case gets treated as minimal risk at Gate 2 because no one checked. A product slips into production without a service owner. The gates below are designed specifically to prevent those failure modes, not to slow things down.
 
 ### 4.1 Gate 1: Intake and Triage
 
-Any person in the organisation can submit an idea through a standard intake form. Triage runs weekly and applies a 3-question filter.
+Any person in the organisation can submit an idea through a standard intake form. Triage runs weekly and applies a three-question filter.
 
-The 1st question is whether the underlying problem is real and quantified. Vague statements of opportunity don't pass. If the team can't say what the baseline cost or time is, the idea goes back for more definition.
+The first question is whether the underlying problem is real and quantified. Vague statements of opportunity don't pass. If the team can't say what the baseline cost or time is, the idea goes back for more definition.
 
-The 2nd question is whether AI is actually the right intervention. Many problems that get submitted as AI use cases are better solved by a workflow change, a data quality fix, or a simple automation. Forcing this question at intake saves significant build investment.
+The second question is whether AI is actually the right intervention. Many problems that get submitted as AI use cases are better solved by a workflow change, a data quality fix, or a simple automation. Forcing this question at intake saves significant build investment.
 
-The 3rd question is whether the use case falls under prohibited or high-risk EU AI Act categories. Catching this at Gate 1 prevents the situation where a team builds for 4 weeks before legal is consulted.
+The third question is whether the use case falls under prohibited or high-risk EU AI Act categories. Catching this at Gate 1 prevents the situation where a team builds for 4 weeks before legal is consulted.
 
 Outcome: the use case is rejected, parked for a future quarter, or progressed to discovery.
 
 ### 4.2 Gate 2: Discovery and Value Proof
 
-Discovery runs for 2 to 4 weeks. The output is a "one page" value proof. One page is a constraint, not a suggestion. A longer document at this stage usually means the team hasn't yet made a decision; they have listed options. The "one page" format forces clarity on: the user and their job to be done, the baseline cost or time, the expected improvement, the data availability, the model class, and the top 3 risks.
+Discovery runs for 2 to 4 weeks. The output is a one-page value proof. One page is a constraint, not a suggestion. A longer document at this stage usually means the team hasn't yet made a decision; they have listed options. The one-page format forces clarity on: the user and their job to be done, the baseline cost or time, the expected improvement, the data availability, the model class, and the top 3 risks.
 
 The EU AI Act classification happens here. This is the most important governance decision the product will ever go through, because it determines the governance load for the rest of its lifecycle. Getting it wrong is expensive, and I cover why in the governance section.
 
 ### 4.3 Gate 3: Investment Case
 
-Discovery outputs feed into a formal investment case reviewed by the AI Portfolio Council. The case must include a "build versus buy" recommendation, a vendor shortlist if buying, eval criteria with target thresholds, a cost model with 3-year total cost of ownership, and the EU AI Act classification confirmed by legal.
+Discovery outputs feed into a formal investment case reviewed by the AI Portfolio Council. The case must include a build-versus-buy recommendation, a vendor shortlist if buying, eval criteria with target thresholds, a cost model with three-year total cost of ownership, and the EU AI Act classification confirmed by legal.
 
 I want to be specific about the eval thresholds. They are agreed at Gate 3, before any build starts. This isn't standard practice in most of the organisations I have seen, and it's the main reason evaluation is treated as a post-hoc exercise rather than a production gate. If you don't agree the threshold before you build, you will always find a reason why the current output is "close enough." Agreeing it upfront removes that rationalisation.
 
@@ -138,7 +138,7 @@ No build is considered complete without a passing eval scorecard against the thr
 
 ### 4.5 Gate 5: Rollout
 
-Rollout is staged, with an explicit group definition before it starts. A "shadow mode" period is mandatory for any use case that touches commercial decisions, which in the MetroStudios example means casting, commissioning, and AVOD. In shadow mode the agent runs in full but the output is reviewed without acting on it. This is how you find the failure modes that your golden set didn't surface.
+Rollout is staged, with an explicit group definition before it starts. A shadow-mode period is mandatory for any use case that touches commercial decisions, which in the MetroStudios example means casting, commissioning, and AVOD. In shadow mode the agent runs in full but the output is reviewed without acting on it. This is how you find the failure modes that your golden set didn't surface.
 
 The rollout expands only when metrics clear their thresholds: adoption rate, eval drift, support tickets, and override rate. Override rate is particularly important. If users are consistently editing or ignoring the agent's output, that is a signal either that the quality isn't there yet, or that the change management hasn't worked. Both are solvable. Neither is visible without measuring.
 
@@ -146,16 +146,16 @@ The rollout expands only when metrics clear their thresholds: adoption rate, eva
 
 Every product in production has 4 things assigned: a named service owner, an eval refresh cadence, a FinOps owner, and documented retirement triggers. The retirement triggers are what make this a lifecycle rather than just a launch process.
 
-A product enters formal retirement review when any of the following apply: its "cost to value" ratio crosses 1:2 over two consecutive quarters, the vendor fails to remediate eval drift within the agreed SLA, a regulatory change reclassifies the use case as "high risk", or a successor product reaches parity.
+A product enters formal retirement review when any of the following apply: its cost-to-value ratio crosses 1:2 over two consecutive quarters, the vendor fails to remediate eval drift within the agreed SLA, a regulatory change reclassifies the use case as high-risk, or a successor product reaches parity.
 
-I treat retirement as a healthy portfolio signal, not a failure signal. The 1st product we retire demonstrates that the lifecycle works end to end. That is worth more to the organisation's confidence in the operating model than keeping a marginal product running to avoid the optics of shutting something down.
+I treat retirement as a healthy portfolio signal, not a failure signal. The first product we retire demonstrates that the lifecycle works end to end. That is worth more to the organisation's confidence in the operating model than keeping a marginal product running to avoid the optics of shutting something down.
 
 ### 4.7 Portfolio cadence
 
 The rhythm that keeps all 6 gates moving is:
 
 - Weekly intake triage. 
-- Bi-weekly eval drift review across all "in production" products. 
+- Bi-weekly eval drift review across all in-production products. 
 - Monthly AI Portfolio Council covering Gate 3 and Gate 5 approvals and any retirement decisions. 
 - Quarterly strategy refresh, vendor review, and FinOps review.
 
@@ -183,17 +183,17 @@ The 8 functions below are the canonical set for any regulated enterprise running
 
 ### 5.2 Decision rights
 
-3 RACI areas need to be made explicit. In my experience, these are the 3 that generate the most ambiguity and the most expensive delays when they are left undefined.
+Three RACI areas need to be made explicit. In my experience, these are the 3 that generate the most ambiguity and the most expensive delays when they are left undefined.
 
-The 1st is model choice. Product is accountable. ML Engineering is responsible for the technical evaluation. Cyber and Legal are consulted because model choice has security and data processing implications that most engineering teams underweight. Procurement is informed.
+The first is model choice. Product is accountable. ML Engineering is responsible for the technical evaluation. Cyber and Legal are consulted because model choice has security and data processing implications that most engineering teams underweight. Procurement is informed.
 
-The 2nd is the use of customer or talent data. Legal is accountable here, not Product. This matters because in regulated industries, "I thought it was fine" isn't a defensible position when a DPIA was skipped. Product is responsible for execution. Data Engineering is consulted on what is technically feasible. The business unit is informed.
+The second is the use of customer or talent data. Legal is accountable here, not Product. This matters because in regulated industries, "I thought it was fine" isn't a defensible position when a DPIA was skipped. Product is responsible for execution. Data Engineering is consulted on what is technically feasible. The business unit is informed.
 
-The 3rd is product retirement. The AI Portfolio Council is accountable for the decision. Product is responsible for preparing the case. Business Unit and Vendor Management are consulted because retirement has adoption and contract implications they need to manage. Everyone is informed.
+The third is product retirement. The AI Portfolio Council is accountable for the decision. Product is responsible for preparing the case. Business Unit and Vendor Management are consulted because retirement has adoption and contract implications they need to manage. Everyone is informed.
 
 ### 5.3 Interface to business units
 
-The "central AI team builds, business unit ignores" pattern is the single most common failure mode I have seen in enterprise AI programmes, across every industry. The fix isn't better communication. It's changing the accountability structure. Every business unit consuming AI capability has a named "AI champion" who sits on the AI Portfolio Council and owns adoption KPIs within their unit. When the champion's objectives include adoption, the conversation about rollout stops being "here is what we built for you" and becomes "here is what we are building together."
+The "central AI team builds, business unit ignores" pattern is the single most common failure mode I have seen in enterprise AI programmes, across every industry. The fix isn't better communication. It's changing the accountability structure. Every business unit consuming AI capability has a named AI champion who sits on the AI Portfolio Council and owns adoption KPIs within their unit. When the champion's objectives include adoption, the conversation about rollout stops being "here is what we built for you" and becomes "here is what we are building together."
 
 In the MetroStudios worked example, the business units are the Studios verticals: Drama, Entertainment, Factual, Sport, Distribution, and Sales. In a bank they would be Retail, Commercial, Wealth, and Markets. In a healthcare insurer they would be Claims, Underwriting, Member Services, and Provider Network. The shape is identical in every case: named champions, adoption targets in their objectives, success stories socialised before any attempt to scale.
 
@@ -202,11 +202,11 @@ In the MetroStudios worked example, the business units are the Studios verticals
 
 ### 6.1 EU AI Act alignment
 
-Every product is classified at Gate 2 against EU AI Act risk tiers. I want to be direct about why this happens at Gate 2 and not later: misclassifying a high-risk use case as minimal is the **single most expensive governance mistake in enterprise AI**. A product that has been built, evaluated, and launched under the wrong classification doesn't just need a governance document added retrospectively. It may need fundamental changes to the "human-in-the-loop" design, the audit logging, the fairness eval framework, and the vendor contracts. Catching the classification early isn't a bureaucratic nicety. It is a cost control decision.
+Every product is classified at Gate 2 against EU AI Act risk tiers. I want to be direct about why this happens at Gate 2 and not later: misclassifying a high-risk use case as minimal is the **single most expensive governance mistake in enterprise AI**. A product that has been built, evaluated, and launched under the wrong classification doesn't just need a governance document added retrospectively. It may need fundamental changes to the human-in-the-loop design, the audit logging, the fairness eval framework, and the vendor contracts. Catching the classification early isn't a bureaucratic nicety. It is a cost control decision.
 
 The classification approach generalises across industries. Any product touching employment, credit, healthcare, education, biometrics, or content moderation triggers high-risk obligations regardless of the domain.
 
-One framing point matters before the table. The 4 tiers aren't a single ladder. The Act treats prohibited, high-risk, limited risk, and minimal risk as overlapping categories, not mutually exclusive rungs. A system can be "high risk" and also carry Article 50 transparency obligations at the same time. "Limited risk" isn't a softer version of "high risk". It is a specific label that means one thing: transparency obligations apply, and nothing else does. I'm deliberate about that wording because a reader who knows the Act will notice if it's used loosely.
+One framing point matters before the table. The 4 tiers aren't a single ladder. The Act treats prohibited, high-risk, limited risk, and minimal risk as overlapping categories, not mutually exclusive rungs. A system can be high-risk and also carry Article 50 transparency obligations at the same time. Limited risk isn't a softer version of high-risk. It is a specific label that means one thing: transparency obligations apply, and nothing else does. I'm deliberate about that wording because a reader who knows the Act will notice if it's used loosely.
 
 The table below shows how the 12 MetroStudios products land.
 
@@ -222,19 +222,19 @@ The table below shows how the 12 MetroStudios products land.
 
 ### 6.2 Human-in-the-loop requirements
 
-3 HITL patterns are defined in this operating model, each mandatory for the corresponding risk tier. The patterns are deliberately named by what the human does, not by how intrusive the AI involvement is, because "human in the loop" is otherwise vague enough to mean almost nothing.
+Three HITL patterns are defined in this operating model, each mandatory for the corresponding risk tier. The patterns are deliberately named by what the human does, not by how intrusive the AI involvement is, because "human in the loop" is otherwise vague enough to mean almost nothing.
 
 Pattern A is suggestion only. The AI surfaces options and the human selects. No output reaches an external party without a deliberate human choice. This covers the Sales Market Intelligence Agent and the YouTube Trend Analyser.
 
-Pattern B is draft and approve. The AI generates a draft, the human reviews it, and nothing is actioned or sent externally before "sign off". This covers the Production Budget Assistant and Subtitle Translation.
+Pattern B is draft and approve. The AI generates a draft, the human reviews it, and nothing is actioned or sent externally before sign-off. This covers the Production Budget Assistant and Subtitle Translation.
 
-Pattern C is 2-stage human review. The AI generates, a first reviewer approves, and a second reviewer spot-checks at a defined sampling rate. This covers Casting Triage and Compliance Review, where the stakes of a missed error are high enough to warrant redundancy in the human review layer.
+Pattern C is two-stage human review. The AI generates, a first reviewer approves, and a second reviewer spot-checks at a defined sampling rate. This covers Casting Triage and Compliance Review, where the stakes of a missed error are high enough to warrant redundancy in the human review layer.
 
 ### 6.3 Audit, observability and kill switches
 
 Every product in production writes to a centralised audit log. The log captures the input hash, retrieval sources used, model output, human action taken, and timestamp. This isn't optional and it isn't configurable per product. The audit log is how the organisation demonstrates compliance, responds to incidents, and investigates eval drift when it is detected.
 
-Eval drift detection runs continuously across "in production" products. When drift crosses threshold, the named kill-switch operator for that product can disable it globally within 15 minutes via the Platform admin console. The operator list and the trigger criteria are documented at Gate 4 before any product goes live. A kill switch that hasn't been tested before an incident is a kill switch that will fail during one.
+Eval drift detection runs continuously across in-production products. When drift crosses threshold, the named kill-switch operator for that product can disable it globally within 15 minutes via the Platform admin console. The operator list and the trigger criteria are documented at Gate 4 before any product goes live. A kill switch that hasn't been tested before an incident is a kill switch that will fail during one.
 
 ### 6.4 Vendor risk
 
@@ -295,7 +295,7 @@ That sounds obvious. In practice, most enterprise AI programmes blur this line b
 
 ### 8.2 Vendor portfolio
 
-I use a three-tier structure. Tier 1 covers strategic vendors for LLM access and model hosting, capped at 2 to 3 relationships. Multi-vendor at this tier is not a preference, it is a policy. A single LLM provider at Tier 1 creates pricing dependency, removes the ability to run A-B tests at model level, and leaves you exposed if that provider changes their terms or degrades a model version. 2 providers at Tier 1 cost almost nothing extra to maintain and buys significant optionality.
+I use a three-tier structure. Tier 1 covers strategic vendors for LLM access and model hosting, capped at 2 to 3 relationships. Multi-vendor at this tier is not a preference, it is a policy. A single LLM provider at Tier 1 creates pricing dependency, removes the ability to run A-B tests at model level, and leaves you exposed if that provider changes their terms or degrades a model version. Two providers at Tier 1 cost almost nothing extra to maintain and buy significant optionality.
 
 Tier 2 covers specialist vendors for specific capabilities: transcription, object tagging, viewing data analytics, rights metadata. These are selected per use case, not centrally mandated. The number varies between 5 and 8 active relationships depending on the portfolio stage.
 
