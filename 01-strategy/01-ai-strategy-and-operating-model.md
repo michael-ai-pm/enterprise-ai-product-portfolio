@@ -351,5 +351,3 @@ The table format is useful for a quick scan. The commentary below each risk is w
 The shadow AI risk is listed as medium impact because the damage is diffuse rather than acute. You do not lose a single incident. You lose months of duplicated effort, accumulate legal exposure in small increments, and miss the cross-product learning that only happens when products share an infrastructure. The mitigation is counter-intuitive: you do not stop people using shadow tools by banning them. You stop them by making the platform path faster and less painful than going around it.
 
 The business unit adoption risk is listed as high likelihood because it is the default outcome if you do not deliberately design against it. Central AI teams that build without named business unit champions, without adoption KPIs embedded in objectives, and without documented success stories before scaling have a consistent failure mode: they produce technically correct products that nobody uses. The fix is not a better product. It is a different operating model.
-
---
