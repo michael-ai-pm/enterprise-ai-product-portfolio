@@ -295,7 +295,7 @@ That sounds obvious. In practice, most enterprise AI programmes blur this line b
 
 ### 8.2 Vendor portfolio
 
-I use a three-tier structure. Tier 1 covers strategic vendors for LLM access and model hosting, capped at 2 to 3 relationships. Multi-vendor at this tier is not a preference, it is a policy. A single LLM provider at Tier 1 creates pricing dependency, removes the ability to run A-B tests at model level, and leaves you exposed if that provider changes their terms or degrades a model version. Two providers at Tier 1 cost almost nothing extra to maintain and buy significant optionality.
+I use a three-tier structure. Tier 1 covers strategic vendors for LLM access and model hosting, capped at 2 to 3 relationships. Multi-vendor at this tier is not a preference, it is a policy. A single LLM provider at Tier 1 creates pricing dependency, removes the ability to run A-B tests at model level, and leaves you exposed if that provider changes their terms or degrades a model version. Two providers at Tier 1 cost almost nothing extra to maintain and buy significant optionality. What makes that policy executable rather than aspirational is a self-hosted model gateway sitting in front of both. Without it, multi-vendor means two integrations and two code paths to keep in sync. With it, the providers are config behind a single stable interface, and switching or load-balancing between them is an operational decision, not an engineering project.
 
 Tier 2 covers specialist vendors for specific capabilities: transcription, object tagging, viewing data analytics, rights metadata. These are selected per use case, not centrally mandated. The number varies between 5 and 8 active relationships depending on the portfolio stage.
 
