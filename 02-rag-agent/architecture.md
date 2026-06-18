@@ -213,7 +213,7 @@ A named operator, rotating among the AI Platform and Sales Ops leads, can disabl
 
 ### 9.5 Data handling
 
-No personal data is processed. Broadcaster relationship data and commercial intelligence are classified as Confidential under the MetroStudios data policy. Storage is in-region, UK for UK users and EU for EU users, per the data residency policy.
+No personal data is processed. Broadcaster relationship data and commercial intelligence are classified as Confidential under the MetroStudios data policy. Storage is in-region, UK for UK users and EU for EU users, per the data residency policy. Self-hosting both the vector store and the model gateway makes that residency structural rather than contractual. The data sits where we put it, and I don't have to trust a third party's regional routing to keep it there.
 
 ## 10. Non-Functional Requirements
 
@@ -245,7 +245,8 @@ v2 brings cross-product integration with the Trend Analyser, so signals flow int
 
 ## 12. Tech Stack (v1)
 
-For LLM access I use Anthropic Claude as the primary, with a secondary provider configured for failover, following the platform multi-model policy. The vector store is a managed service, Pinecone or equivalent, with the decision deferred until vendor due diligence completes. The structured store is the existing MetroStudios data warehouse on Snowflake.
+For LLM access I route everything through a self-hosted LiteLLM gateway rather than calling a provider SDK directly. Claude is the primary model behind that gateway, with a second provider configured for failover, but the application code talks to the gateway, not to any one vendor. I made that choice deliberately. A direct SDK integration ties the whole agent to one provider's API surface, and swapping the model later becomes a rewrite instead of a config change. The gateway also keeps the provider keys and the prompts inside our own infrastructure, which matters the moment a regulated buyer asks where the data goes. The trade-off is honest: the gateway is one more service to run and it adds roughly 20 to 40ms of latency per call. At a 90-second P95 budget that cost is irrelevant, and the optionality it buys is worth far more than the millisecond.
+The vector store is Qdrant, self-hosted. I chose it over a managed service because the whole point of this document is that vendors should not own the differentiation, and a managed vector store sits directly on the retrieval path that makes the agent useful. Qdrant's payload filtering is the strongest of the open-source options, which matters here because the hybrid retrieval in section 6 routes structured filters alongside semantic search rather than treating everything as a similarity query. The structured store is the existing MetroStudios data warehouse on Snowflake.
 
 The orchestrator is a custom Python service on FastAPI with a state machine. I evaluated LangGraph and rejected it for v1, because at this maturity stage the debugging overhead costs more than the abstraction saves. Observability uses OpenTelemetry traces with LLM-specific observability through a tool such as LangSmith or Arize, again deferred. The eval framework is a custom harness over Promptfoo and DeepEval, which keeps it portable across the wider AI portfolio. The UI is a React component embedded in the Sales hub.
 
@@ -253,7 +254,7 @@ The orchestrator is a custom Python service on FastAPI with a state machine. I e
 
 | Open question | Owner | Decision needed by |
 |---|---|---|
-| Vector DB vendor selection | ML Eng + Procurement | End of Week 5 |
+| Self-hosted Qdrant sizing and index parameters for v1 scale | ML Eng | End of Week 5 |
 | Trade press licence coverage for territories outside UK/US | Legal | End of Week 6 |
 | Eval judge model (same provider as production model or independent?) | PM + ML Eng | End of Week 5 |
 | Source tier thresholds for senior review trigger | PM + Sales Ops | End of Week 7 |
@@ -263,7 +264,7 @@ The orchestrator is a custom Python service on FastAPI with a state machine. I e
 | Hallucinated competitive claims damage a broadcaster relationship | Citation enforcement, Reviewer LLM, executive sign-off |
 | Trade press licence breach | Source-level access control, audit log review |
 | Cost drift if executives use the agent for non-pitch research | Rate limits per user, cost dashboard, behavioural nudges in the UI |
-| Vendor outage on the primary LLM | Multi-provider failover configured at the orchestrator |
+| Vendor outage or silent model change on the primary LLM | Failover handled at the LiteLLM gateway, second provider already configured |
 
 The eval judge model question is the one I want settled early. If the judge shares a provider with the production model, a shared failure mode could mask a hallucination on both sides at once. I lean towards an independent judge, but I want to confirm the cost before I commit.
 
