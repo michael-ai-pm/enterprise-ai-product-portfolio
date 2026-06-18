@@ -1,0 +1,4 @@
+anthropic
+litellm
+qdrant-client
+pytest
