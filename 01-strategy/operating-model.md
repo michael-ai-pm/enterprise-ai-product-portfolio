@@ -37,6 +37,8 @@ The first force is production readiness. Generative and agentic AI have crossed 
 
 The second force is the visible cost of fragmentation. Across industries, organisations are running 20 or more shadow AI tools per business unit, with no governance, no eval baseline, and no FinOps oversight. The cost isn't the tools themselves. It's the duplicated effort, the legal exposure, the audit findings, and the loss of cross-product learning that accumulates when every team runs its own stack.
 
+The scale of the problem is now measured, not asserted. MIT's research finds that around 95% of enterprise AI projects produce no measurable gain, and a Workday study puts the share of time saved that gets absorbed by correcting and verifying AI output at roughly 40%. The cost isn't the tools themselves. It's the duplicated effort, the legal exposure, the audit findings, and the loss of cross-product learning that accumulates when every team runs its own stack.
+
 The third force is regulation. The EU AI Act is live and applies to a wider range of enterprise use cases than most organisations have acknowledged: any decision support touching employment, credit, healthcare, content moderation, or biometrics, as well as vendor-provided general-purpose models. Operating without a governance framework is a commercial risk, not just a legal one.
 
 In the worked example, these 3 forces show up concretely. Production-ready capability exists for research and tagging across the content lifecycle. Adoption of casting and post-production tools is already fragmented across business units. And EU AI Act exposure on casting triage and AVOD personalisation is real and unmanaged.
