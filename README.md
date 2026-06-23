@@ -15,8 +15,7 @@ AI products in parallel.
 
 - **Strategy and operating model:** a six-gate lifecycle from intake to retirement,
   multi-team coordination, vendor strategy, and a three-year roadmap.
-- **Working build:** a retrieval-augmented agent with hybrid retrieval, mandatory citation
-  enforcement, a planner-synthesiser-reviewer pattern, and an offline eval pipeline.
+- **Working build:** a retrieval-augmented agent with hybrid retrieval over self-hosted Qdrant, mandatory citation enforcement, a planner-synthesiser-reviewer pattern, and an offline eval pipeline.
 - **Evaluation frameworks:** how to set thresholds before building, run golden-set evals,
   and detect drift in production.
 - **Governance and unit economics:** EU AI Act classification, HITL patterns, kill-switch
@@ -46,8 +45,7 @@ If you care about **unit economics**, start with the
 ## A note on the approach
 
 The decisions here are deliberately conservative. Where the fashionable answer is a fully
-autonomous agent, a pure-RAG architecture, or a single-vendor model strategy, this
-repository goes the other way: constrained loops, hybrid retrieval, multi-vendor by policy.
+autonomous agent, a pure-RAG architecture, or a single-vendor model strategy, this repository goes the other way: constrained loops, hybrid retrieval, self-hosted and vendor-neutral infrastructure.
 The reasons are documented in each artefact.
 
 This is not the only way to build enterprise AI products. It is one defensible way, written
