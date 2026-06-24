@@ -23,3 +23,7 @@ It isn't. I embedded each press release as 1 large chunk, where section 6.1 of t
 - Build the spec-compliant chunking and re-measure retrieval quality.
 - Close the retrieve-and-generate loop through the gateway, with citation enforcement at synthesis time.
 - Swap the free embedding and generation path for the production model when I run the evals that actually count.
+
+## Citation enforcement held on the weakest model, which I didn't expect
+
+The architecture document treats citation enforcement as the single most important design decision, and the hardest to guarantee. So I expected the free model to be the place it broke first. It didn't. With the citation rule in the system prompt and the sources passed in the context, the free router returned a clean answer that cited the right file and pulled only from the retrieved text, not from its own training. 1 working result isn't proof it holds at scale, and I'll need the offline eval set to know the real citation rate. But the first signal is that enforcement through the prompt is doing more of the work than I assumed, even before any stronger model is involved.
