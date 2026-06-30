@@ -29,3 +29,24 @@ It isn't. I embedded each press release as 1 large chunk, where section 6.1 of t
 The architecture document treats citation enforcement as the single most important design decision, and the hardest to guarantee. So I expected the free model to be the place it broke first. It didn't. With the citation rule in the system prompt and the sources passed in the context, the free router returned a clean answer that cited the right file and pulled only from the retrieved text, not from its own training. 1 working result isn't proof it holds at scale, and I'll need the offline eval set to know the real citation rate. But the first signal is that enforcement through the prompt is doing more of the work than I assumed, even before any stronger model is involved. 
 "## 25 June - checkpoint" 
 "Ingestion and retrieve-generate working on the four-release corpus. Next session: chunking, 500-token chunks with 50-token overlap to sharpen retrieval scores. Paused build this week, picking back up from here." 
+
+### 30 June - the chunking was already done, and I almost rebuilt it
+
+I came back to this after a pause believing chunking was still the next task, because that's what my own checkpoint said and what my kanban implied. Before writing anything, I read the ingestion script instead of trusting the note. The 500-token chunking with 50-token overlap was already there, matching section 6.1. I'd built it in an earlier session and then lost track of it across the gap.
+
+The lesson is uncomfortable but useful. On a good-energy day, the guilt pushes me to write fresh code on top of code I haven't read. If I'd trusted the note over the file, I'd have spent my best hour of the week rebuilding something that already worked. Reading first isn't the slow option. It's the one that stops you wasting the fast option.
+
+One honest caveat on the chunking. It splits on words, not true tokens, and the chunk metadata is lighter than the architecture document describes. It stores source and text, but not date, territory, genre, or broadcaster. That metadata is what section 6.1 calls part of the ingestion contract, and it's what makes the structured filtering in hybrid retrieval possible later. So the chunking is done in shape, not yet in full. The enrichment is a refinement for a later pass, not a blocker now.
+
+### Hybrid retrieval shipped, and the merge is deliberately naive
+
+The spec says route structured questions to structured data and semantic questions to the vector store. I added the keyword half today using BM25 over the same chunks, so a literal query, a show title or a host name, now has a path that scores on exact words rather than only on meaning. Both paths run, and I merge their candidates and deduplicate by id.
+
+I want to be honest that the merge is the simplest thing that works. A chunk that surfaces in either path becomes a candidate, and that's it. There's no relevance-weighted ordering yet. That's the reranking step, a cross-encoder over the combined candidates, and it's the next real task. I shipped the naive merge on purpose rather than waiting to build the clever version, because a working hybrid path I can measure beats a perfect one I'm still designing.
+
+### Open items (updated)
+
+- Add cross-encoder reranking over the merged candidates to replace the naive merge.
+- Enrich chunk metadata (date, territory, genre, broadcaster) to enable structured filtering.
+- Move the root scripts into the rag-agent folder and fix the relative paths.
+- Build the Planner and Reviewer stages. Only the retrieve-and-synthesise core exists so far.
