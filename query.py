@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, CrossEncoder
 from qdrant_client import QdrantClient
 from rank_bm25 import BM25Okapi
 import litellm
@@ -9,6 +9,14 @@ load_dotenv()
 
 # Load the same embedding model used for ingestion
 model = SentenceTransformer("all-MiniLM-L6-v2")
+
+# Cross-encoder reranker. Unlike the bi-encoder above (which embeds the
+# question and each chunk separately, then compares vectors), the cross-encoder
+# reads the question and a candidate chunk together in one pass and scores how
+# relevant that chunk is to that question. It is slower, so we never run it over
+# the whole corpus. We run it only over the small merged candidate set from
+# hybrid retrieval, to reorder those candidates by true relevance.
+reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
 
 # Connect to the existing Qdrant store
 client = QdrantClient(path="./qdrant_local")
@@ -51,7 +59,7 @@ _bm25 = BM25Okapi(_tokenised_corpus)
 # Retrieval
 # ---------------------------------------------------------------------------
 
-def retrieve_semantic(question, k=5):
+def retrieve_semantic(question, k=10):
     query_vector = model.encode(question).tolist()
     results = client.query_points(
         collection_name=COLLECTION, query=query_vector, limit=k
@@ -59,7 +67,7 @@ def retrieve_semantic(question, k=5):
     return results.points
 
 
-def retrieve_keyword(question, k=5):
+def retrieve_keyword(question, k=10):
     tokenised_query = question.lower().split()
     scores = _bm25.get_scores(tokenised_query)
     # Pair each chunk with its BM25 score, sort high to low, take top k
@@ -67,17 +75,15 @@ def retrieve_keyword(question, k=5):
     return [chunk for chunk, score in ranked[:k] if score > 0]
 
 
-def retrieve(question, k=3):
-    """Hybrid retrieval: semantic + keyword, merged and deduplicated.
+def merge_candidates(question, candidate_k=10):
+    """Gather candidates from both retrieval paths and deduplicate by point id.
 
-    We gather candidates from both paths, drop duplicates by point id,
-    then return the top k. The merge is deliberately simple for v1:
-    a chunk that surfaces in either path is a candidate. Reranking with
-    a cross-encoder is the next build step and will replace this naive
-    merge with a proper relevance ordering.
+    This is the wide net. We pull more candidates than we ultimately want,
+    because the reranker below is what narrows the set down to the best few.
+    Order here is not meaningful yet; the cross-encoder decides the final order.
     """
-    semantic_hits = retrieve_semantic(question, k=k)
-    keyword_hits = retrieve_keyword(question, k=k)
+    semantic_hits = retrieve_semantic(question, k=candidate_k)
+    keyword_hits = retrieve_keyword(question, k=candidate_k)
 
     merged = {}
     for hit in semantic_hits:
@@ -85,7 +91,35 @@ def retrieve(question, k=3):
     for hit in keyword_hits:
         merged.setdefault(hit.id, hit)
 
-    return list(merged.values())[: k * 2]
+    return list(merged.values())
+
+
+def rerank(question, candidates, top_k=3):
+    """Reorder merged candidates by true relevance using the cross-encoder.
+
+    We build (question, chunk_text) pairs, score them all in one batch, then
+    sort high to low and keep the top_k. This replaces the old naive
+    dict-insertion order with a real relevance ordering.
+    """
+    if not candidates:
+        return []
+
+    pairs = [(question, hit.payload["text"]) for hit in candidates]
+    scores = reranker.predict(pairs)
+
+    ranked = sorted(zip(candidates, scores), key=lambda pair: pair[1], reverse=True)
+    return [hit for hit, score in ranked[:top_k]]
+
+
+def retrieve(question, k=3, candidate_k=10):
+    """Hybrid retrieval with reranking.
+
+    1. Gather a wide candidate set from semantic + keyword paths (candidate_k each).
+    2. Deduplicate by point id.
+    3. Rerank the merged set with a cross-encoder and keep the top k.
+    """
+    candidates = merge_candidates(question, candidate_k=candidate_k)
+    return rerank(question, candidates, top_k=k)
 
 
 def build_context(hits):
