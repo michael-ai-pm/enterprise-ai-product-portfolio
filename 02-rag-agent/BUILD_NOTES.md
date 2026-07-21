@@ -48,10 +48,30 @@ I added a cross-encoder reranker (cross-encoder/ms-marco-MiniLM-L-6-v2) over the
 
 Same MiniLM family as the embedding model, runs local on CPU, no API cost. Fits the free-tier discipline. Tested on the Richard Osman query, answer came back clean and cited.
 
+## 20 July - the venv blocker, and how a fortnight of being stuck cleared in one session
+
+The honest gap in this log is the one between 1 July and now. The build stalled, and it did not stall on anything intellectually hard. It stalled on a corrupted virtual environment. Pip installs kept breaking the environment on the Windows setup, and every attempt to build on top of it inherited the corruption. I lost real time to it, and the frustration of being blocked by plumbing rather than by the actual problem is its own kind of tax. It is worth recording plainly, because a retrospective that skips the dead weeks tells a cleaner story than the true one.
+
+The fix was not clever. The working environment already existed on my laptop, which was the original source machine. The Windows setup was the copy, and it was the copy that had corrupted. Rather than keep trying to rebuild the broken one, I went back to the machine where the venv already worked. Confirming it was clean took one command, `python query.py`, and a clean cited answer came back. The lesson I want to hold onto is that a blocker can feel enormous for a fortnight and take one session to clear once you stop trying to repair the broken path and switch to the one that already works.
+
+## 20 July - unit tests for the retrieval layer
+
+This was the task carried from 2 July and never done until now. I wrote eight unit tests over the retrieval functions: keyword retrieval returning results for a known term, the zero-score filter dropping nonsense queries, the k and top_k caps being respected, the merge deduplicating by id, the reranker handling an empty candidate set without erroring, the end-to-end retrieve returning source-attributed hits, and build_context wrapping every chunk with its source marker.
+
+They run against the real Qdrant store rather than mocks. That was a deliberate choice. At this stage I would rather the tests confirm the pipeline behaves on the actual indexed corpus than confirm it behaves against a fake I built to pass. All eight passed. The one I cared about most was the deduplication test, because the naive merge from 30 June is exactly the kind of code that looks right and quietly returns duplicates.
+
+## 20 July - the corpus was too small to prove anything, so I grew it
+
+The integration test the plan calls for assumes 20 sample documents. I had four. Four documents is not enough for a retrieval test to mean much, because the system barely has to discriminate to look good. So before the integration test I wrote 16 more sample commission releases, matched to the exact format of the real four, spread across seven broadcasters and six genre families.
+
+One deliberate decision here, tied to the whole point of this portfolio. The documents are fictional. Invented show titles, invented production companies,
+
 ## Open items
 
-- Write unit tests for the retrieval layer. Carried to 2 July.
-- Enrich chunk metadata (date, territory, genre, broadcaster) to enable structured filtering.
+- Enrich chunk metadata (date, territory, genre, broadcaster) to enable structured filtering. Still the main gap between the chunking as built and the ingestion contract in section 6.1.
+- Grow the corpus with documents long enough to exercise the 500-token chunking. The current 20 are all single-chunk, so splitting is built but unproven.
 - Move the root scripts into the rag-agent folder and fix the relative paths.
-- Build the Planner and Reviewer stages. Only the retrieve-and-synthesise core exists so far.
+- Build the Planner stage: the structured plan of sub-queries, one per briefing section. This is the next real build task.
+- Build the Reviewer stage. Only the retrieve-and-synthesise core plus reranking exists so far.
+- Stand up the offline eval set, so citation rate and hallucination rate become measured numbers rather than single-example impressions.
 - Swap the free embedding and generation path for the production model when I run the evals that actually count.
