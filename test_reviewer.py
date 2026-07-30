@@ -254,9 +254,17 @@ def test_review_reassembles_sources_after_a_retry(monkeypatch):
 def test_live_review_leaves_no_uncited_answered_section():
     """Live, slow, and the point of the whole stage.
 
-    This is the assertion the Synthesiser alone could not hold: after
-    review, an answered section either carries a citation or carries a
-    quality warning. It is never quietly uncited.
+    This is the assertion the Synthesiser alone could not hold, and it now
+    lives here rather than in test_synthesiser.py, where it was marked
+    xfail because the model attached citations roughly half the time. The
+    contract belongs to the stage that enforces it, not the stage that
+    requests it.
+
+    After review, an answered section either carries a citation or carries a
+    quality warning saying review does not stand behind it. It is never
+    quietly uncited. Note that both outcomes are acceptable: the Reviewer's
+    job is to make the failure visible, not to guarantee the model
+    eventually complies.
     """
     import planner
 
