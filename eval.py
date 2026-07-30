@@ -408,7 +408,14 @@ def summarise(runs_path=RUNS_PATH, loop_path=LOOP_PATH, out_path=SUMMARY_PATH):
 
     lines.append("## Metrics, overall and by repeat")
     lines.append("")
-    header = "| Metric | Overall | " + " | ".join(f"Run {r}" for r in grouped) + " | Spread |"
+    # The per-run observation count is in the header on purpose. A run cut
+    # short by a rate limit is still real data, but it must not read as
+    # carrying the same weight as a complete one.
+    header = (
+        "| Metric | Overall | "
+        + " | ".join(f"Run {r} (n={len(rows)})" for r, rows in grouped.items())
+        + " | Spread |"
+    )
     lines.append(header)
     lines.append("|" + "---|" * (len(grouped) + 3))
 
@@ -426,6 +433,54 @@ def summarise(runs_path=RUNS_PATH, loop_path=LOOP_PATH, out_path=SUMMARY_PATH):
         "once for exactly that reason."
     )
     lines.append("")
+
+    lines.append("## Where the failures actually are")
+    lines.append("")
+    lines.append(
+        "The aggregate rates above hide the shape of the problem, which is the "
+        "reason this breakdown exists. Failures are not spread evenly across "
+        "sections, they are concentrated."
+    )
+    lines.append("")
+    lines.append("| Scenario | Section | Expected answerable | Answered |")
+    lines.append("|---|---|---|---|")
+
+    per_section = {}
+    for record in records:
+        key = (record["scenario"], record["section"], record["section_name"])
+        answered, total = per_section.get(key, (0, 0))
+        per_section[key] = (
+            answered + (record["status"] == synthesiser.STATUS_ANSWERED),
+            total + 1,
+        )
+
+    for (scenario, number, name), (answered, total) in sorted(per_section.items()):
+        expected = next(
+            (
+                r["expected_answerable"]
+                for r in records
+                if r["scenario"] == scenario and r["section"] == number
+            ),
+            None,
+        )
+        lines.append(
+            f"| {scenario} | {number}. {name} | {expected} | {answered}/{total} |"
+        )
+
+    lines.append("")
+
+    retried = [r for r in records if r["attempts"] > 1]
+    if retried:
+        lines.append("### What the Reviewer caught")
+        lines.append("")
+        for record in retried:
+            lines.append(
+                f"- `{record['scenario']}` section {record['section']}, repeat "
+                f"{record['repeat']}: first attempt failed on "
+                f"{', '.join(record['first_attempt_failures'])}, retry produced "
+                f"`{record['status']}` with {len(record['citations'])} citation(s)."
+            )
+        lines.append("")
 
     lines.append("## Refusal accuracy runs in both directions")
     lines.append("")
