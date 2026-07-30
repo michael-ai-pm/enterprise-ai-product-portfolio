@@ -85,17 +85,32 @@ Point 3 is not a fallback for a hard question. It is the correct answer whenever
 Write two to four sentences of plain prose. No headings, no bullet points, no preamble."""
 
 
-def build_section_prompt(section_name, plan, hits):
-    """Build the user prompt for a single section's synthesis."""
+def build_section_prompt(section_name, plan, hits, feedback=None):
+    """Build the user prompt for a single section's synthesis.
+
+    `feedback` carries the Reviewer's failure reasons on a retry. Section 7
+    of the architecture document specifies one retry with the failure
+    reasons in context, so the reasons go into the prompt rather than the
+    section simply being regenerated and hoped over.
+    """
     context = query.build_context(hits)
-    return (
+    prompt = (
         f"Format being pitched: {plan.get('format')}\n"
         f"Target broadcaster: {plan.get('broadcaster')}\n"
         f"Territory: {plan.get('territory')}\n\n"
         f"Section to write: {section_name}\n\n"
         f"Sources:\n\n{context}\n\n"
-        f"Write the {section_name} section."
     )
+
+    if feedback:
+        prompt += (
+            "A previous attempt at this section was REJECTED by review for "
+            f"the following reason(s):\n{feedback}\n\n"
+            "Write the section again and fix those failures. The citation "
+            "rule is not optional.\n\n"
+        )
+
+    return prompt + f"Write the {section_name} section."
 
 
 def gather_evidence(sub_queries, min_score=SECTION_MIN_SCORE, k=HITS_PER_SUB_QUERY):
@@ -144,11 +159,12 @@ def is_refusal(text):
     return stripped.upper() == INSUFFICIENT_TOKEN
 
 
-def synthesise_section(section, plan, min_score=SECTION_MIN_SCORE, generate=None):
+def synthesise_section(section, plan, min_score=SECTION_MIN_SCORE, generate=None, feedback=None):
     """Synthesise one section and return its structured result.
 
     `generate` is the generation function, injected so the offline tests can
-    exercise both gates without a live call.
+    exercise both gates without a live call. `feedback` is the Reviewer's
+    rejection reason on a retry.
     """
     if generate is None:
         generate = _generate
@@ -186,7 +202,7 @@ def synthesise_section(section, plan, min_score=SECTION_MIN_SCORE, generate=None
         return result
 
     hits = [hit for hit, score in kept]
-    text = generate(build_section_prompt(name, plan, hits))
+    text = generate(build_section_prompt(name, plan, hits, feedback=feedback))
 
     # Gate two, the model's own. The sources cleared the floor but do not
     # address the section.
