@@ -1,0 +1,375 @@
+{
+  "notes": [
+    "Three scenarios, run repeatedly. Optimised for variance rather than coverage:",
+    "the citation flake was only visible because one section ran twice, so repeat",
+    "observations on a few scenarios say more than single observations on many.",
+    "",
+    "Every scenario carries both answerable and unanswerable sections, so refusal",
+    "accuracy runs in both directions. An agent that refuses everything scores",
+    "perfectly on hallucination and is useless, and this set is built to catch that.",
+    "",
+    "The corpus is 20 commission announcements. Sections 2 and 3 (broadcaster slate,",
+    "competing formats) have evidence. Sections 1, 4, 5 and 6 ask for territory",
+    "viewing data, audience appetite, format fit reasoning and risk assessment, and",
+    "none of that exists in the corpus. The labels below record that, they do not",
+    "aspire to something the corpus could support.",
+    "",
+    "The 'plan' field is populated once by 'python eval.py --plans' and committed, so",
+    "repeat runs do not pay for the planner and every run is measured against the",
+    "same plan. Plan-stage variance is excluded from this harness by construction.",
+    "That is a real limitation and it is stated in the results rather than hidden:",
+    "a planner eval is a separate instrument that does not exist yet."
+  ],
+  "scenarios": [
+    {
+      "id": "c4-quiz",
+      "format": "The Golden Elevators, a high-stakes primetime quiz format",
+      "broadcaster": "Channel 4",
+      "territory": "United Kingdom",
+      "plan": {
+        "format": "The Golden Elevators, a high-stakes primetime quiz format",
+        "broadcaster": "Channel 4",
+        "territory": "United Kingdom",
+        "sections": [
+          {
+            "number": 1,
+            "name": "Territory snapshot",
+            "derived": false,
+            "sub_queries": [
+              "UK television consumption trends 2026",
+              "United Kingdom AVOD versus SVOD market share recent",
+              "Channel 4 primetime peak viewing slots audience data"
+            ]
+          },
+          {
+            "number": 2,
+            "name": "Broadcaster slate",
+            "derived": false,
+            "sub_queries": [
+              "Channel 4 current primetime schedule 2026",
+              "Channel 4 recent quiz commission announcements",
+              "Channel 4 schedule gaps in primetime entertainment 2026"
+            ]
+          },
+          {
+            "number": 3,
+            "name": "Competing formats",
+            "derived": false,
+            "sub_queries": [
+              "Channel 4 current quiz shows 2026",
+              "UK quiz show ratings and performance 2026",
+              "Channel 4 cancelled quiz formats recent"
+            ]
+          },
+          {
+            "number": 4,
+            "name": "Trend signals",
+            "derived": false,
+            "sub_queries": [
+              "UK audience appetite for high-stakes quiz shows",
+              "Trend signals for prize-driven television formats United Kingdom",
+              "Social media reaction to quiz shows Channel 4"
+            ]
+          },
+          {
+            "number": 5,
+            "name": "Format fit",
+            "derived": false,
+            "sub_queries": [
+              "Channel 4 strategic priorities entertainment 2026",
+              "Channel 4 commissioning focus on quiz and game shows",
+              "UK demographics for quiz show viewership"
+            ]
+          },
+          {
+            "number": 6,
+            "name": "Risks and counterarguments",
+            "derived": false,
+            "sub_queries": [
+              "Channel 4 concerns about high-cost quiz production",
+              "Channel 4 risk of audience fatigue with quiz formats",
+              "Channel 4 budget constraints for prize-based television"
+            ]
+          },
+          {
+            "number": 7,
+            "name": "Sources",
+            "derived": true,
+            "sub_queries": []
+          }
+        ]
+      },
+      "expected": {
+        "1": {
+          "answerable": false,
+          "why": "no territory viewing data in the corpus"
+        },
+        "2": {
+          "answerable": true,
+          "sources": [
+            "c4-below-the-line.txt",
+            "c4-kitchen-pass.txt",
+            "c4-the-reset.txt",
+            "c4-war-room.txt",
+            "c4-wrong-move.txt"
+          ]
+        },
+        "3": {
+          "answerable": true,
+          "sources": [
+            "c4-kitchen-pass.txt",
+            "c4-wrong-move.txt",
+            "itv-second-guess.txt",
+            "itv-golden-elevators.txt",
+            "c5-auction-house.txt"
+          ]
+        },
+        "4": {
+          "answerable": false,
+          "why": "no social or trade press signals in the corpus"
+        },
+        "5": {
+          "answerable": false,
+          "why": "format fit reasoning has no evidential base here"
+        },
+        "6": {
+          "answerable": false,
+          "why": "no risk or pushback material in the corpus"
+        }
+      }
+    },
+    {
+      "id": "bbc-drama",
+      "format": "Saltmarsh, a six-part coastal crime drama",
+      "broadcaster": "BBC",
+      "territory": "United Kingdom",
+      "plan": {
+        "format": "Saltmarsh, a six-part coastal crime drama",
+        "broadcaster": "BBC",
+        "territory": "United Kingdom",
+        "sections": [
+          {
+            "number": 1,
+            "name": "Territory snapshot",
+            "derived": false,
+            "sub_queries": [
+              "UK TV consumption trends crime drama",
+              "UK SVOD vs AVOD market share split",
+              "UK television peak viewing hours by genre"
+            ]
+          },
+          {
+            "number": 2,
+            "name": "Broadcaster slate",
+            "derived": false,
+            "sub_queries": [
+              "BBC recent crime drama commissions",
+              "BBC One schedule gaps drama",
+              "BBC iPlayer original drama slate"
+            ]
+          },
+          {
+            "number": 3,
+            "name": "Competing formats",
+            "derived": false,
+            "sub_queries": [
+              "UK coastal crime drama hits and failures",
+              "BBC crime drama viewership ratings",
+              "UK scripted crime drama cancellations"
+            ]
+          },
+          {
+            "number": 4,
+            "name": "Trend signals",
+            "derived": false,
+            "sub_queries": [
+              "audience appetite for regional British drama",
+              "popularity of coastal settings in UK television",
+              "rise in popularity of limited series crime dramas"
+            ]
+          },
+          {
+            "number": 5,
+            "name": "Format fit",
+            "derived": false,
+            "sub_queries": [
+              "BBC commissioning priorities scripted drama",
+              "BBC brand alignment coastal crime genre",
+              "BBC target audience demographics for crime drama"
+            ]
+          },
+          {
+            "number": 6,
+            "name": "Risks and counterarguments",
+            "derived": false,
+            "sub_queries": [
+              "challenges in UK crime drama production costs",
+              "audience fatigue with coastal crime tropes",
+              "BBC budget constraints scripted drama"
+            ]
+          },
+          {
+            "number": 7,
+            "name": "Sources",
+            "derived": true,
+            "sub_queries": []
+          }
+        ]
+      },
+      "expected": {
+        "1": {
+          "answerable": false,
+          "why": "no territory viewing data in the corpus"
+        },
+        "2": {
+          "answerable": true,
+          "sources": [
+            "bbc-counsels.txt",
+            "bbc-longest-winter.txt",
+            "bbc-marsh-kings.txt",
+            "bbc-the-ledger.txt",
+            "bbc-tidewater.txt"
+          ]
+        },
+        "3": {
+          "answerable": true,
+          "sources": [
+            "bbc-tidewater.txt",
+            "bbc-marsh-kings.txt",
+            "bbc-the-ledger.txt",
+            "netflix-ravenscar.txt",
+            "sky-quiet-house.txt",
+            "itv-homefront.txt"
+          ]
+        },
+        "4": {
+          "answerable": false,
+          "why": "no social or trade press signals in the corpus"
+        },
+        "5": {
+          "answerable": false,
+          "why": "format fit reasoning has no evidential base here"
+        },
+        "6": {
+          "answerable": false,
+          "why": "no risk or pushback material in the corpus"
+        }
+      }
+    },
+    {
+      "id": "sky-thriller",
+      "format": "Cold Harbour, an eight-part conspiracy thriller",
+      "broadcaster": "Sky",
+      "territory": "United Kingdom",
+      "plan": {
+        "format": "Cold Harbour, an eight-part conspiracy thriller",
+        "broadcaster": "Sky",
+        "territory": "United Kingdom",
+        "sections": [
+          {
+            "number": 1,
+            "name": "Territory snapshot",
+            "derived": false,
+            "sub_queries": [
+              "UK TV consumption trends Sky",
+              "AVOD versus SVOD Sky UK",
+              "peak slots Sky UK 2026"
+            ]
+          },
+          {
+            "number": 2,
+            "name": "Broadcaster slate",
+            "derived": false,
+            "sub_queries": [
+              "Sky recent commissions 2026",
+              "Sky current programming conspiracy thriller",
+              "Sky schedule gaps conspiracy genres 2026"
+            ]
+          },
+          {
+            "number": 3,
+            "name": "Competing formats",
+            "derived": false,
+            "sub_queries": [
+              "UK streaming conspiracy thriller competitors 2026",
+              "cancelled UK conspiracy series 2025-26",
+              "popular UK thriller formats Sky rivals"
+            ]
+          },
+          {
+            "number": 4,
+            "name": "Trend signals",
+            "derived": false,
+            "sub_queries": [
+              "UK consumer demand conspiracy content surveys",
+              "social media engagement conspiracy thrillers UK",
+              "prime-time thriller viewership shifts Sky"
+            ]
+          },
+          {
+            "number": 5,
+            "name": "Format fit",
+            "derived": false,
+            "sub_queries": [
+              "Sky audience demographics conspiracy thriller fit",
+              "Sky commissioning strategy thriller storytelling",
+              "Sky's successful past conspiracy programming UK"
+            ]
+          },
+          {
+            "number": 6,
+            "name": "Risks and counterarguments",
+            "derived": false,
+            "sub_queries": [
+              "Sky objections to conspiracy narrative themes",
+              "past programme cancellations Sky drama complaints",
+              "Sky's content safety policies conspiracy elements"
+            ]
+          },
+          {
+            "number": 7,
+            "name": "Sources",
+            "derived": true,
+            "sub_queries": []
+          }
+        ]
+      },
+      "expected": {
+        "1": {
+          "answerable": false,
+          "why": "no territory viewing data in the corpus"
+        },
+        "2": {
+          "answerable": true,
+          "sources": [
+            "sky-frostline.txt",
+            "sky-penalty.txt",
+            "sky-quiet-house.txt"
+          ]
+        },
+        "3": {
+          "answerable": true,
+          "sources": [
+            "sky-frostline.txt",
+            "sky-quiet-house.txt",
+            "netflix-ravenscar.txt",
+            "bbc-tidewater.txt",
+            "itv-homefront.txt"
+          ]
+        },
+        "4": {
+          "answerable": false,
+          "why": "no social or trade press signals in the corpus"
+        },
+        "5": {
+          "answerable": false,
+          "why": "format fit reasoning has no evidential base here"
+        },
+        "6": {
+          "answerable": false,
+          "why": "no risk or pushback material in the corpus"
+        }
+      }
+    }
+  ]
+}
