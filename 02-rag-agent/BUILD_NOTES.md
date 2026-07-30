@@ -66,12 +66,47 @@ The integration test the plan calls for assumes 20 sample documents. I had four.
 
 One deliberate decision here, tied to the whole point of this portfolio. The documents are fictional. Invented show titles, invented production companies,
 
+## 30 July - the Planner, and a defect I would not have seen without separating the stages
+
+The Planner produces a structured plan of sub-queries, one set per briefing section, as JSON against a fixed schema rather than as prose. That choice is what makes the stage independently evaluable. I can score a plan on its own, before any retrieval runs, and attribute a bad briefing to planning rather than to everything downstream at once.
+
+Section seven, Sources, is declared in the plan but carries no sub-queries. It is assembled from the citations of the sections above it, so planning retrieval for it would be inventing work that doesn't exist. Declaring it anyway keeps the plan faithful to the seven-section output contract without pretending.
+
+The first run came back valid on the schema and wrong in a way I had not anticipated. Nearly every sub-query was anchored to a year the model had chosen for itself: UK viewing trends 2024, quiz commissions 2023 2024, and so on. My corpus is dated 2026. Those year tokens appear nowhere in it, and because half the retrieval path is BM25 keyword matching, an invented year doesn't merely fail to help. It actively pushes the right document down the ranking. The model was date-anchoring to its own training cutoff.
+
+The fix was to inject the current date into the system prompt and forbid invented year anchors explicitly, with the reason stated in the prompt itself rather than left implicit. The second run came back with zero year tokens across all eighteen sub-queries, and the sub-queries were shorter and more keyword-shaped as a side effect.
+
+What I want to record is not the fix. It is that this defect is a planning failure, and I could see that only because the planner is a separate call with its own output I can read. Inside a single agentic loop it would have surfaced as slightly worse retrieval, and I would have gone looking in the retrieval layer, which was working correctly the whole time.
+
+One smaller thing, worth noting because it cost me a run. The prompt contains a literal JSON example, and building it with Python's `.format()` fails immediately, because every brace in that example is read as a placeholder. A plain string replace is the right tool. Obvious in hindsight, invisible until it breaks.
+
+## 30 July - the Synthesiser refuses, and that is the feature
+
+The Planner asks for territory viewing data, audience appetite, format fit reasoning and risk assessment. My corpus is twenty commission announcements. Only two of the six sections, broadcaster slate and competing formats, have anything real to retrieve against. The other four ask for source types I have not built.
+
+The obvious move is to grow the corpus first. I did the opposite deliberately. The Synthesiser returns an explicit insufficient_sources status for any section where the evidence isn't there, and it does not fill the gap from model knowledge. An agent that declines to answer without evidence is a better demonstration than a complete-looking briefing assembled from thin air, and the refusal is a first-class output in the result rather than an error, so the Reviewer and the eval harness can both score it.
+
+The first live briefing, a quiz format into Channel 4, returned two sections answered and four refused. What interests me is that the four refusals came from two different gates. Sections one and four were refused at retrieval, before any model call happened. Sections five and six reached the model and the model itself declined. That meant four generation calls where the plan called for six. The deterministic gate is doing real work and costing nothing to do it, which is the kind of thing that only shows up as a FinOps benefit once you count the calls you didn't make.
+
+The relevance threshold sits at zero on the reranker score. On this query it separated cleanly, with the kept chunks at 5.41 and above and the first rejected one at minus 1.89. That is a wide gap rather than a knife edge, and it is also one query. I am not going to call it a validated threshold on a sample of one. It is a starting value that happened to look comfortable, and the eval set is what will tell me whether it holds.
+
+## 30 July - correcting what I wrote about citation enforcement
+
+Earlier in this log I wrote that citation enforcement held on the weakest model and that I hadn't expected it to. I need to correct that, because it was a claim built on a single example.
+
+Running the Synthesiser across six sections twice tells a different story. On the first run, section two came back marked answered with prose about the retrieved documents and no citations attached at all. On the second run, same code and same plan shape, it cited three files correctly. One section, two runs, roughly one in two.
+
+The number is small enough that I would not put a rate on it. What the number is good enough to establish is the qualitative point, and it is the one that matters. Prompt-level enforcement is not enforcement. It is a request that a weak model honours some of the time, and a single passing example told me nothing about the distribution. I generalised from one observation because the observation was pleasant.
+
+This is exactly the hole the Reviewer stage exists to close, and it is now a measured behaviour rather than an impression. The live test still asserts that section two carries citations, and I have left that assertion as written rather than weakening it to make the suite green, because the contract is correct and the model is what fails. It is marked xfail with the reason recorded inline, non-strict, so a run where the model does cite shows as an unexpected pass and the intermittency stays visible in the test output. When the Reviewer lands and the assertion holds consistently, the marker comes off. That removal will be its own commit, which is a more honest record than a test I quietly tuned down.
+
 ## Open items
 
-- Enrich chunk metadata (date, territory, genre, broadcaster) to enable structured filtering. Still the main gap between the chunking as built and the ingestion contract in section 6.1.
-- Grow the corpus with documents long enough to exercise the 500-token chunking. The current 20 are all single-chunk, so splitting is built but unproven.
+- Build the Reviewer stage. It now has a specific job rather than a general one: reject any section marked answered that carries no citation. The citation flake on 30 July is the measured reason it exists.
+- Stand up the offline eval set, so citation rate and refusal accuracy become measured numbers across many runs rather than impressions from two.
+- Remove the xfail marker on the section two citation assertion once the Reviewer closes the gap. That removal is the proof the stage works.
+- Validate the relevance threshold. Zero looked comfortable on one query. It needs the eval set before I call it settled.
+- Enrich chunk metadata (date, territory, genre, broadcaster) to enable structured filtering, still the gap between the chunking as built and the ingestion contract in section 6.1.
+- Grow the corpus with documents long enough to exercise the 500-token chunking, and with the source types sections one, four, five and six actually need.
 - Move the root scripts into the rag-agent folder and fix the relative paths.
-- Build the Planner stage: the structured plan of sub-queries, one per briefing section. This is the next real build task.
-- Build the Reviewer stage. Only the retrieve-and-synthesise core plus reranking exists so far.
-- Stand up the offline eval set, so citation rate and hallucination rate become measured numbers rather than single-example impressions.
-- Swap the free embedding and generation path for the production model when I run the evals that actually count.
+- Swap the free embedding and generation path for the production model when I run the evals that count.
