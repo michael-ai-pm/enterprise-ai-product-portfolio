@@ -94,12 +94,18 @@ def merge_candidates(question, candidate_k=10):
     return list(merged.values())
 
 
-def rerank(question, candidates, top_k=3):
+def rerank(question, candidates, top_k=3, with_scores=False):
     """Reorder merged candidates by true relevance using the cross-encoder.
 
     We build (question, chunk_text) pairs, score them all in one batch, then
     sort high to low and keep the top_k. This replaces the old naive
     dict-insertion order with a real relevance ordering.
+
+    with_scores returns (hit, score) pairs instead of bare hits. The
+    Synthesiser needs the raw relevance score to decide whether a section
+    has anything worth writing about, and that decision has to happen
+    before any generation call. Kept as an opt-in flag so the default
+    return shape, and everything already calling it, stays unchanged.
     """
     if not candidates:
         return []
@@ -108,10 +114,14 @@ def rerank(question, candidates, top_k=3):
     scores = reranker.predict(pairs)
 
     ranked = sorted(zip(candidates, scores), key=lambda pair: pair[1], reverse=True)
-    return [hit for hit, score in ranked[:top_k]]
+    top = ranked[:top_k]
+
+    if with_scores:
+        return [(hit, float(score)) for hit, score in top]
+    return [hit for hit, score in top]
 
 
-def retrieve(question, k=3, candidate_k=10):
+def retrieve(question, k=3, candidate_k=10, with_scores=False):
     """Hybrid retrieval with reranking.
 
     1. Gather a wide candidate set from semantic + keyword paths (candidate_k each).
@@ -119,7 +129,7 @@ def retrieve(question, k=3, candidate_k=10):
     3. Rerank the merged set with a cross-encoder and keep the top k.
     """
     candidates = merge_candidates(question, candidate_k=candidate_k)
-    return rerank(question, candidates, top_k=k)
+    return rerank(question, candidates, top_k=k, with_scores=with_scores)
 
 
 def build_context(hits):
