@@ -100,13 +100,51 @@ The number is small enough that I would not put a rate on it. What the number is
 
 This is exactly the hole the Reviewer stage exists to close, and it is now a measured behaviour rather than an impression. The live test still asserts that section two carries citations, and I have left that assertion as written rather than weakening it to make the suite green, because the contract is correct and the model is what fails. It is marked xfail with the reason recorded inline, non-strict, so a run where the model does cite shows as an unexpected pass and the intermittency stays visible in the test output. When the Reviewer lands and the assertion holds consistently, the marker comes off. That removal will be its own commit, which is a more honest record than a test I quietly tuned down.
 
+
+## 30 July - the Reviewer, and a contradiction I wrote myself
+
+The Reviewer is 2 tiers, and the cheap one gates the expensive one. Same shape as the retrieval gate already sitting in the Synthesiser, which I didn't plan as a pattern but will take.
+
+Tier 1 is plain Python and runs on every section. An answered section must carry at least 1 citation. Every cited filename must appear in that section's kept evidence. A section marked insufficient_sources must carry no text. None of that needs a model, so it costs nothing and never flakes.
+
+Tier 2 is the support check, whether the cited source actually backs the claim, and that one needs a model. It only runs on sections that clear tier 1, so a section that already failed the free check never costs a call.
+
+Then tier 2 is switched off inside the request loop, and I'd rather explain that than let someone find it. Section 7 of the architecture document caps a request at 12 LLM calls. One planner call, up to 6 synthesis calls, plus retries, and I'm already at 10 or 11. A support check per section breaks the cap.
+
+So here's what I actually found. Section 4 of my own document asks for a check on every claim. Section 7 of the same document caps the calls at 12. Both can't hold once 6 sections retry. I wrote both sections, weeks apart, and read the thing through more than once without noticing. It only showed up when something had to satisfy both at the same time. That's not a build problem I worked around, it's a specification defect I found by building, and it's the kind of thing that stays invisible for as long as a document is only ever read.
+
+I also got the acceptance test wrong, which is worth recording because I got it wrong in a specific way. My plan said that once the Reviewer landed I could remove the xfail marker on the Synthesiser's live citation test. But that marker sits on a test that runs the Synthesiser alone and never calls the Reviewer at all. The Reviewer landing changes nothing on that path. Pulling the marker there would have restored an intermittently red suite and proved nothing about the stage that fixed it.
+
+What I did instead: the citation assertion moved to the Reviewer's live test, where it's enforced. The Synthesiser's live test now asserts only what that stage guarantees on its own, which is the refusal split. Nothing got weakened, and there's no xfail left in the repo. The contract sits with the stage that enforces it rather than the stage that asks for it.
+
+## 30 July - 56 observations, and the number I didn't want
+
+56 section observations, 4 repeats, 3 scenarios. The harness writes to a committed results file, so the numbers are in the repo rather than in a terminal I closed. Every figure came off the free tier, which is a development path, so these measure this configuration and not the design.
+
+3 scenarios repeated beat 10 scenarios run once, and I chose that on purpose. The citation flake I found earlier only showed up because 1 test happened to run twice. A single pass gives you 1 number per metric and tells you nothing about whether it holds.
+
+Citation rate and citation validity both came back at 100% across all 56, and 100% in every individual repeat. I want to be careful about what that does and doesn't say, because it's the sort of number that flatters. The Synthesiser on its own still cites about half the time. What the 100% says is that the Reviewer closes the gap the Synthesiser leaves open, not that the Synthesiser got better. 2 of 20 first attempts failed review and both were corrected on retry. One invented a citation and came back with 3 valid ones. The other left a citation out entirely and came back as an honest refusal instead. A retry that turns a fabricated answer into a refusal is the loop doing what I specified, and it's the result I'm happiest with.
+
+Then refusal accuracy at 81%, and underneath it 2 failures pointing in opposite directions.
+
+The first is false refusal, at 42%, and it's concentrated rather than spread out. Section 2 answers 9 times out of 10. Section 3 answers twice out of 9, and never once for the BBC or the Sky scenario. 6 of the 8 false refusals are no_evidence_retrieved, meaning the retrieval gate threw everything out before a model was involved. The cached plans say why: the section 3 sub-queries ask for ratings, viewership and cancellations, and none of that is in a corpus of commission announcements, even though the competing titles themselves obviously are. The planner asked for the wrong evidence about the right subject. That's a planning failure showing up as a retrieval miss, and I could only see it because the plan is cached, readable, and separable from the stage that used it. The architectural decision I argued for in section 4.2, separate the stages so a failure can be attributed, paid for itself here.
+
+The second failure is the one I didn't want, and it's more interesting than the first. Section 5 was marked unanswerable in the golden set and came back answered 2 times out of 3 for the BBC scenario, 2 of 3 for Sky, 1 of 3 for Channel 4. Section 4 did the same thing once. That's 7 observations where the agent answered a section the golden set says the corpus can't support. Citation rate was 100% across all of them, so those answers carried citations, drawn from real retrieved files.
+
+Which means a formally valid citation and a true claim are 2 different things. Tier 1 confirms a real filename got attached to the text. It says nothing about whether the sentence follows from the file. Tier 2 is the check that would catch exactly this, and tier 2 is off because of the 12-call cap.
+
+So the eval didn't only measure the loop. It turned the section 4 against section 7 contradiction from a bookkeeping annoyance into a demonstrated hole, with 7 observations sitting in it. I don't have a fix inside the current cap. Either the cap moves, or the support check moves out of the request path and into a sampled offline job, which is a different design with different economics. I'm leaving it open rather than picking in a hurry.
+
+Two things the harness doesn't measure, both by construction. Plan quality, because plans are generated once and committed so every repeat runs the same plan, which excludes planner variance deliberately and means a planning regression wouldn't appear here. And claim support, for the reason above. A planner eval is a separate instrument and it doesn't exist.
+
+The run stopped short of a 4th full repeat because I hit the free tier's daily cap at 2 observations in. 76 minutes for a single briefing, roughly 12 minutes a call, and the architecture document asks for a 90-second P95. The free tier is about 50 times over it. That's a statement about the tier and not about the design, and the design target stays a target either way.
+
+
 ## Open items
 
-- Build the Reviewer stage. It now has a specific job rather than a general one: reject any section marked answered that carries no citation. The citation flake on 30 July is the measured reason it exists.
-- Stand up the offline eval set, so citation rate and refusal accuracy become measured numbers across many runs rather than impressions from two.
-- Remove the xfail marker on the section two citation assertion once the Reviewer closes the gap. That removal is the proof the stage works.
-- Validate the relevance threshold. Zero looked comfortable on one query. It needs the eval set before I call it settled.
-- Enrich chunk metadata (date, territory, genre, broadcaster) to enable structured filtering, still the gap between the chunking as built and the ingestion contract in section 6.1.
-- Grow the corpus with documents long enough to exercise the 500-token chunking, and with the source types sections one, four, five and six actually need.
+- Resolve the section 4 against section 7 contradiction. Either the 12-call cap moves, or the support check moves out of the request path into a sampled offline job. Different design, different economics. Open on purpose rather than settled in a hurry.
+- Fix the section 3 sub-queries. The planner asks for ratings and cancellations against a corpus of commission announcements. The subject is right and the evidence request is wrong.
+- A planner eval. Plans are cached and committed, so planner variance is excluded from the current harness by construction and a planning regression wouldn't show up.
+- Enrich chunk metadata (date, territory, genre, broadcaster) for structured filtering, still the gap between the chunking as built and the ingestion contract in section 6.1.
 - Move the root scripts into the rag-agent folder and fix the relative paths.
-- Swap the free embedding and generation path for the production model when I run the evals that count.
+- Re-run the eval set on the production model when the numbers need to count. The free tier gives 12 minutes a call against a 90-second target.
