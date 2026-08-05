@@ -139,12 +139,32 @@ Two things the harness doesn't measure, both by construction. Plan quality, beca
 
 The run stopped short of a 4th full repeat because I hit the free tier's daily cap at 2 observations in. 76 minutes for a single briefing, roughly 12 minutes a call, and the architecture document asks for a 90-second P95. The free tier is about 50 times over it. That's a statement about the tier and not about the design, and the design target stays a target either way.
 
+## 5 August - I read one output and found 2 things
+
+The eval harness records citations, status and verdict for every observation, and it doesn't record the section text. I noticed that gap when I tried to answer a question about my own numbers and couldn't. 7 sections came back answered where the golden set says the corpus can't support an answer, all with valid citations and a passing review, and from the metadata alone I had no way to tell whether the agent had written something false or something merely beside the point. So I wrote a small script to run one of them and print what it actually said.
+
+The section was Format fit for the Channel 4 quiz scenario. What came back was 2 sentences naming War Room, The Reset and Below the Line, each cited to a real file, and each claim true. Channel 4 did commission all 3, and the files say so.
+
+It still didn't answer the question. Format fit asks whether a high-stakes quiz suits this broadcaster in this territory now. What it got was a list of recent commissions with an inferential bridge at the end, "showing a willingness to back projects that blend access-driven storytelling with competitive or high-pressure premises". That clause is the model's own reasoning. No file says it. And because it sits as a subordinate clause hanging off a cited sentence, there's nothing for a citation check to attach to.
+
+So the failure isn't a hallucination, and calling it one would be lazy. Every check I built passed, and passed correctly. Tier 1 confirmed real filenames against retrieved evidence. A support check would likely also pass, because each cited sentence genuinely is supported. What slipped through is a supported claim standing in for an unsupported one, with the unsupported part folded into a clause that no citation rule reaches. That is a harder thing to catch than a false statement, and I don't have a check for it.
+
+The second finding was a bug in my own instrument. The citations field on that run read `['c4-war-room.txt', 'c4-the-reset.txt, source: c4-below-the-line.txt']`. 3 files, 2 entries, because the model had put 2 of them inside 1 bracket and `extract_citations` captured everything up to the closing bracket as a single name. The regex was `[^\]]+`, which is correct for 1 file and wrong for 2.
+
+The consequence runs into the numbers. A double citation was counted once, and the merged string never matches a retrieved filename, so it would be recorded as an invalid citation when both files were real and both were retrieved. Citation rate is unaffected, because a section either cited something or it didn't. Citation validity across the 56 observations was measured with a parser that under-counts, and I'd rather write that down than quietly re-run and publish a cleaner number.
+
+I fixed the parser, splitting the bracket contents on repeated source markers and on commas and semicolons, and added 5 regression tests including the exact string from the live run. I'm not re-running the eval set to correct the numbers. 76 minutes a briefing on the free tier means a full re-run costs more time than the correction is worth right now, and the honest note costs nothing.
+
+What I take from the pair of them is duller than it sounds. I only found either one because I looked at a single output by hand. The harness was working, the tests were green, the summary was accurate about everything it measured, and neither the reasoning gap nor the parser bug was visible in any of it. An instrument that doesn't store what it measured can't be audited afterwards, and storing the section text is now the first thing on the list.
+
 
 ## Open items
 
 - Resolve the section 4 against section 7 contradiction. Either the 12-call cap moves, or the support check moves out of the request path into a sampled offline job. Different design, different economics. Open on purpose rather than settled in a hurry.
+- Find a check for the reasoning gap in Format fit. A cited sentence carrying an uncited inference in a subordinate clause passes tier 1 and would probably pass tier 2 as well. I don't have a rule that catches it.
 - Fix the section 3 sub-queries. The planner asks for ratings and cancellations against a corpus of commission announcements. The subject is right and the evidence request is wrong.
+- Store section text in the eval results. Neither the reasoning gap nor the citation parser bug was visible in the recorded metadata, and both were found by running 1 case by hand.
 - A planner eval. Plans are cached and committed, so planner variance is excluded from the current harness by construction and a planning regression wouldn't show up.
+- Re-run the eval set when the numbers need to count, with the fixed citation parser and on the production model. The free tier gives 12 minutes a call against a 90-second target.
 - Enrich chunk metadata (date, territory, genre, broadcaster) for structured filtering, still the gap between the chunking as built and the ingestion contract in section 6.1.
 - Move the root scripts into the rag-agent folder and fix the relative paths.
-- Re-run the eval set on the production model when the numbers need to count. The free tier gives 12 minutes a call against a 90-second target.
