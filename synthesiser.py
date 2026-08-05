@@ -137,14 +137,29 @@ def gather_evidence(sub_queries, min_score=SECTION_MIN_SCORE, k=HITS_PER_SUB_QUE
 
 
 def extract_citations(text):
-    """Pull the cited filenames out of a section, in order, deduplicated."""
-    found = re.findall(r"\[source:\s*([^\]]+)\]", text, flags=re.IGNORECASE)
+    """Pull the cited filenames out of a section, in order, deduplicated.
 
+    The model sometimes puts more than one file inside a single bracket,
+    either as [source: a.txt, source: b.txt] or as [source: a.txt, b.txt].
+    An earlier version of this function captured everything up to the
+    closing bracket as a single name, so a double citation was recorded as
+    one malformed filename, counted once, and failed validity checking
+    against the retrieved evidence. Splitting on the internal separators is
+    what makes the count honest.
+    """
     citations = []
-    for name in found:
-        name = name.strip()
-        if name and name not in citations:
-            citations.append(name)
+
+    for block in re.findall(r"\[source:\s*([^\]]+)\]", text, flags=re.IGNORECASE):
+        # Turn any repeated "source:" marker inside the bracket into a
+        # separator, then split on commas and semicolons to recover the
+        # individual filenames.
+        cleaned = re.sub(r"\bsource\s*:", ",", block, flags=re.IGNORECASE)
+
+        for name in re.split(r"[,;]", cleaned):
+            name = name.strip()
+            if name and name not in citations:
+                citations.append(name)
+
     return citations
 
 

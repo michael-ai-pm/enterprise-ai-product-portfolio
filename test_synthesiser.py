@@ -280,3 +280,40 @@ def test_live_briefing_answers_what_the_corpus_supports_and_refuses_the_rest():
 def gather(sub_queries):
     """Shorthand for the module-level default threshold."""
     return synthesiser.gather_evidence(sub_queries)
+
+# Add these to test_synthesiser.py, alongside the existing extract_citations tests.
+
+def test_extract_citations_splits_repeated_source_marker():
+    """The model sometimes puts two files in one bracket with the marker
+    repeated. Found in a live run on 30 July: the whole bracket was captured
+    as a single malformed name, so a double citation counted as one and
+    failed validity checking against the retrieved evidence."""
+    text = (
+        "Channel 4 commissioned War Room [source: c4-war-room.txt]. The same "
+        "appetite shows in its other formats "
+        "[source: c4-the-reset.txt, source: c4-below-the-line.txt]."
+    )
+    assert synthesiser.extract_citations(text) == [
+        "c4-war-room.txt",
+        "c4-the-reset.txt",
+        "c4-below-the-line.txt",
+    ]
+
+
+def test_extract_citations_splits_comma_separated_files():
+    """Same bracket, no repeated marker."""
+    assert synthesiser.extract_citations("Claim [source: a.txt, b.txt].") == ["a.txt", "b.txt"]
+
+
+def test_extract_citations_splits_semicolon_separated_files():
+    assert synthesiser.extract_citations("Claim [source: a.txt; b.txt].") == ["a.txt", "b.txt"]
+
+
+def test_extract_citations_handles_three_in_one_bracket():
+    text = "Claim [source: a.txt, source: b.txt, source: c.txt]."
+    assert synthesiser.extract_citations(text) == ["a.txt", "b.txt", "c.txt"]
+
+
+def test_extract_citations_is_case_insensitive_on_the_marker():
+    text = "Claim [Source: A.txt, SOURCE: B.txt]."
+    assert synthesiser.extract_citations(text) == ["A.txt", "B.txt"]
